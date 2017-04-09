@@ -1,0 +1,13 @@
+---
+app_home_dir: /var/www/api.example
+app_venv_dir: /var/www/api.example/.venv
+app_dir: /var/www/api.example/project
+app_port: 8000
+app_repo: https://github.com/robohead/minimal-django-rest-api-boilerplate.git
+app_settings: config.local_settings
+
+secret_key: 123456
+
+db_name: api_db
+db_user: api
+db_password: api

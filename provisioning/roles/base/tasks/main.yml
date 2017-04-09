@@ -1,0 +1,45 @@
+- name: Ensure bash, OpenSSL, and libssl are the latest versions
+  apt: name={{ item }} state=latest
+  with_items:
+    - bash
+    - openssl
+    - libssl-dev
+  tags: packages
+
+- name: Install base packages
+  apt: name={{ item }} state=present
+  with_items:
+    - build-essential
+    - htop
+    - curl
+    - git
+    - libpq-dev
+    - python-dev
+    - python-pip
+    - supervisor
+    - zip
+    - unzip
+  tags: packages
+
+- name: Upgrade pip
+  pip: name=pip state=latest
+  tags: packages
+
+- name: Add repository for Python 3.6 to the sources list
+  apt_repository: repo='ppa:fkrull/deadsnakes' state=present
+
+- name: Install Python 3.6 and related packages
+  apt: name={{ item }} state=present
+  with_items:
+    - python3.6
+    - python3.6-dev
+    - python3-pip
+    - ipython3
+  tags: packages
+
+- name: Install python dependencies
+  pip: name={{ item }} state=latest
+  with_items:
+    - virtualenv
+    - supervisor
+    - ipython

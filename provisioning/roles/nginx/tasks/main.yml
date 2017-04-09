@@ -1,0 +1,19 @@
+---
+- name: Install nginx
+  apt: name=nginx state=present
+
+- name: Copy nginx.conf
+  copy: src=nginx.conf dest=/etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+
+- name: Delete example config
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify:
+    - restart nginx
+
+- name: Create example project directory
+  file: path=/var/www/example state=directory
+
+- name: Add index.html
+  copy: src=index.html dest=/var/www/example/index.html

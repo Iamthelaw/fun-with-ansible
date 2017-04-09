@@ -1,0 +1,56 @@
+---
+- name: Create user group
+  group: name=api state=present
+
+- name: Create application user
+  user: name=api group=api home={{ app_home_dir }}
+
+- name: Checkout from remote directory
+  become_user: api
+  git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_dir }}"
+
+- name: Update local settings
+  become_user: api
+  template: src=local_settings.j2 dest={{ app_dir }}/config/local_settings.py
+
+- name: Install app requirements to local virtualenv
+  become_user: api
+  pip: requirements={{ app_dir }}/requirements.txt virtualenv={{ app_venv_dir }}
+
+- name: Create postgres role and database for application
+  become_user: postgres
+  become: true
+  postgresql_user: name={{ db_user }} password={{ db_password }}
+
+- name: Create database
+  become_user: postgres
+  become: true
+  postgresql_db: name={{ db_name }} owner={{ db_user }} encoding=UTF-8
+
+- name: Run migrations
+  become_user: api
+  django_manage:
+    command: migrate
+    app_path: "{{ app_dir }}"
+    settings: "{{ app_settings }}"
+    virtualenv: "{{ app_venv_dir }}"
+
+- name: Add supervisor config
+  template: src=supervisor.j2 dest=/etc/supervisor/conf.d/api.conf
+
+- name: Add command
+  supervisorctl:
+    name: api
+    state: present
+
+- name: Restart command
+  supervisorctl:
+    name: api
+    state: restarted
+
+- name: Add nginx config
+  template: src=nginx.j2 dest=/etc/nginx/sites-enabled/api
+  notify:
+  - restart nginx

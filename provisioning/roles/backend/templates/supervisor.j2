@@ -1,0 +1,7 @@
+[program:api]
+command={{ app_venv_dir }}/bin/gunicorn --bind 127.0.0.1:{{ app_port }} --env DJANGO_SETTINGS_MODULE={{ app_settings }} config.wsgi
+directory={{ app_dir }}
+user=api
+autostart=true
+autorestart=true
+redirect_stderr=true
